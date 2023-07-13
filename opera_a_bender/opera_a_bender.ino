@@ -182,11 +182,13 @@ void playerselect() {  //procedure for choosing a one player or two player game 
   blackstate = 1;
   limpiarLcdYSetearCursor(0, 0);
 
-  lcd.print("Jugador: 1");
+  lcd.print("Elige cantidad");
   lcd.setCursor(0, 1);
-  lcd.print("Elige o cambia");
+  lcd.print("de Jugadores");
+  delay(3000);
+  limpiarLcdYSetearCursor(0, 0);
+  lcd.print("1 Jugador");
   int toggled = 0;  //toggle variable keeps track of how many times the black button has been pushed, determining number of players selected
-
   while (yellowstate == 1) {
     lightoff();
     yellowstate = digitalRead(yellowbutton);
@@ -194,14 +196,16 @@ void playerselect() {  //procedure for choosing a one player or two player game 
     if ((blackstate == 0) && (toggled == 0)) {
       toggled = 1;
       lcd.setCursor(0, 0);
-      lcd.print("Jugador: 2");
+      lcd.clear();
+      lcd.print("2 Jugadores");
       delay(300);
       blackstate = 1;
     }
     if ((blackstate == 0) && (toggled == 1)) {
       toggled = 0;
       lcd.setCursor(0, 0);
-      lcd.print("Jugador: 1");
+      lcd.clear();
+      lcd.print("1 Jugador");
       delay(300);
       blackstate = 1;
     }
@@ -212,14 +216,14 @@ void playerselect() {  //procedure for choosing a one player or two player game 
   limpiarLcdYSetearCursor(2, 0);
 
   if (toggled == 0) {
-    lcd.print("Jugador 1");
+    lcd.print("Cantidad de");
     lcd.setCursor(1, 1);
-    lcd.print(" Seleccionar");
+    lcd.print(" Jugadores: 1");
     playernumber = 1;
   } else {
-    lcd.print("Jugador 2");
+    lcd.print("Cantidad de");
     lcd.setCursor(1, 1);
-    lcd.print(" Seleccionar");
+    lcd.print(" Jugadores: 2");
     playernumber = 2;
   }
   yellowstate = 1;
@@ -310,7 +314,7 @@ void leftyrarity() {  //procedure for choosing how frequently the 'lefty bonus' 
     if ((blackstate == 0) && (toggled == 0)) {
       toggled = 1;
       limpiarLcdYSetearCursor(2, 0);
-      lcd.print("Izq.: Rara");
+      lcd.print("Izq.: Poco");
       lcd.setCursor(0, 1);
       lcd.print("Elige o cambia");
       delay(300);
@@ -351,7 +355,7 @@ void leftyrarity() {  //procedure for choosing how frequently the 'lefty bonus' 
   if (toggled == 1) {
     lcd.print(" Bonus con Izq.:");
     lcd.setCursor(0, 1);
-    lcd.print("   Raro (33%)   ");
+    lcd.print("   Poco (33%)   ");
     leftyfreq = 3;
   }
   if (toggled == 2) {
@@ -380,8 +384,8 @@ void nameassign() {  //randomly generates doctor names for each player from a li
   seconddoc = 0;
   while (firstdoc == seconddoc) {
     randomSeed(analogRead(0));              //seeds the random number with the unpredictable noise on unconnected pin A0; seems to help with true randomness
-    seconddoc = (random(3)) + (random(4));  //another attempt to achieve greater randomness- arduino initiates the exact same 'random' list of numbers, so the first
-    firstdoc = random(7);                   //random number generated on startup always seems to be the same
+    seconddoc = (random(1)) + (random(2));  //another attempt to achieve greater randomness- arduino initiates the exact same 'random' list of numbers, so the first
+    firstdoc = random(4);                   //random number generated on startup always seems to be the same
   }
   limpiarLcdYSetearCursor(0, 0);
 
@@ -398,15 +402,6 @@ void nameassign() {  //randomly generates doctor names for each player from a li
     case 3:
       setNameFirstPlayer("Prof. Hubert");
       break;
-    case 4:
-      setNameFirstPlayer("Kif Kroker");
-      break;
-    case 5:
-      setNameFirstPlayer("Amy Wong");
-      break;
-    case 6:
-      setNameFirstPlayer("Hermes Conrad");
-      break;
   }
 
   if (playernumber == 2) {
@@ -422,15 +417,6 @@ void nameassign() {  //randomly generates doctor names for each player from a li
         break;
       case 3:
         setNameSecondPlayer("Prof. Hubert");
-        break;
-      case 4:
-        setNameSecondPlayer("Kif Kroker");
-        break;
-      case 5:
-        setNameSecondPlayer("Amy Wong");
-        break;
-      case 6:
-        setNameSecondPlayer("Hermes Conrad");
         break;
     }
   }
@@ -466,7 +452,7 @@ void setItem(String itemName) {
 
 void randomoperation() {      //part of the main game loop. randomly chooses a procedure and a maximum $ value to be earned, which decreases as time elapses
   randomSeed(analogRead(0));  //the possible dollar ranges of each procedure can be set independently, if game board construction results in some surgeries being more
-  randomsurgery = random(6);  //difficult than others
+  randomsurgery = random(5);  //difficult than others
   switch (randomsurgery) {
     case 0:
       surgery = "Cerveza";
@@ -481,7 +467,7 @@ void randomoperation() {      //part of the main game loop. randomly chooses a p
       surgery = "Dinero";
       break;
     case 4:
-      surgery = "Tijera";
+      surgery = "Habano";
       break;
   }
   setItem(surgery);
@@ -642,12 +628,18 @@ void scoredisplay() {
 void gameover() {  //when the winning threshold is achieved, show a congratulatory message if a one player game, who the winner was in a two player game,
   limpiarLcdYSetearCursor(0, 0);
   if (playernumber == 2) {
-    lcd.print("Felicitaciones,");
-    lcd.setCursor(0, 1);
+    lcd.print("Felicitaciones!");
+    delay(3000);
+    limpiarLcdYSetearCursor(0, 0);
     if (onescore > twoscore) {
-      lcd.print(" Gana jugador 1!");
+      lcd.print(firstname+"," );
+      lcd.setCursor(0, 1);
+      lcd.print(" Ganaste!!");
+      success_melody();
     } else {
-      lcd.print(" Gana jugador 2!");
+      lcd.print(secondname+"," );
+      lcd.setCursor(0, 1);
+      lcd.print(" Ganaste!!");
       success_melody();
     }
   } else {
@@ -684,10 +676,9 @@ void gameover() {  //when the winning threshold is achieved, show a congratulato
   yellowstate = 1;
   limpiarLcdYSetearCursor(0, 0);
   while (yellowstate == 1) {
-
     lcd.print("Enter para");
     lcd.setCursor(0, 1);
-    lcd.print(" jugar de nuevo");
+    lcd.print(" jugar de nuevo     ");
     yellowstate = digitalRead(yellowbutton);
     delay(50);
   }
